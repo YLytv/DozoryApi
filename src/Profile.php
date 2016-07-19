@@ -51,22 +51,22 @@ class Profile
      * @param Integer $cnt_lose
      */
     public function __construct(
-        $person_id,
-        $nick,
-        $magic_level,
-        MagicAlign $magic_align,
-        $org_id,
-        $max_stamina,
-        $max_energy,
-        ClassType $class_type_id,
-        Sex $sex,
-        Tendency $tendency,
-        $reg_date,
-        $init_date,
-        $last_login,
-        $online_time,
-        $cnt_wins,
-        $cnt_lose
+                    $person_id,
+                    $nick,
+                    $magic_level,
+        MagicAlign  $magic_align,
+                    $org_id,
+                    $max_stamina,
+                    $max_energy,
+        ClassType   $class_type_id,
+        Sex         $sex,
+        Tendency    $tendency,
+                    $reg_date,
+                    $init_date,
+                    $last_login,
+                    $online_time,
+                    $cnt_wins,
+                    $cnt_lose
     ) {
         $this->person_id        = (int)$person_id;
         $this->nick             = $nick;
@@ -125,7 +125,7 @@ class Profile
     }
 
     /**
-     * @return MagicAlign
+     * @return int
      */
     public function getOrgId()
     {
@@ -220,6 +220,10 @@ class Profile
         return $this->cnt_lose;
     }
 
+    /**
+     * @param  array[int] $person_ids
+     * @return array[DozoryApi\Profile]
+     */
     public static function load($person_ids)
     {
         $result = [];
@@ -241,7 +245,6 @@ class Profile
             $url .= "&person_id=" . $id;
         }
 
-
         $xml = simplexml_load_file($url);
 
         if (empty($xml)) {
@@ -250,7 +253,6 @@ class Profile
             foreach ($xml->children() as $row){
 
                 $person_id = (string)$row['person_id'];
-
 
                 $fields = [];
 
@@ -273,9 +275,7 @@ class Profile
                     }
                 }
 
-
-
-                $result[] = new Profile(
+                $result[$person_id] = new Profile(
                     $person_id,
                     (string)$row['nick'],
                     (string)$row['magic_level'],

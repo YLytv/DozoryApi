@@ -2,13 +2,8 @@
 namespace DozoryApi\Profile;
 
 
-final class Sex extends BaseEnum
+final class Sex extends \SplEnum
 {
     const Male     = 'm';
     const Female   = 'f';
-
-    protected static $list = [
-        self::Male,
-        self::Female
-    ];
 }

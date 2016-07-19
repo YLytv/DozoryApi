@@ -8,17 +8,17 @@ use DozoryApi\Profile\ClassType;
 use DozoryApi\Profile\MagicAlign;
 use DozoryApi\Profile\Sex;
 use DozoryApi\Profile\Tendency;
-use phpDocumentor\Reflection\Types\Integer;
+use UnexpectedValueException;
 
 class Profile
 {
-
     const MAX_COUNT = 50;
 
     protected $person_id;
     protected $nick;
     protected $magic_level;
     protected $magic_align;
+    protected $org_id;
     protected $max_stamina;
     protected $max_energy;
     protected $class_type_id;
@@ -35,7 +35,8 @@ class Profile
      * Profile constructor.
      * @param Integer $person_id
      * @param String $nick
-     * @param $magic_level
+     * @param Integer $magic_level
+     * @param Integer $org_id
      * @param \DozoryApi\Profile\MagicAlign $magic_align
      * @param Integer $max_stamina
      * @param Integer $max_energy
@@ -53,12 +54,13 @@ class Profile
         $person_id,
         $nick,
         $magic_level,
-        $magic_align,
+        MagicAlign $magic_align,
+        $org_id,
         $max_stamina,
         $max_energy,
-        $class_type_id,
-        $sex,
-        $tendency,
+        ClassType $class_type_id,
+        Sex $sex,
+        Tendency $tendency,
         $reg_date,
         $init_date,
         $last_login,
@@ -71,6 +73,7 @@ class Profile
 
         $this->magic_level      = (int)$magic_level;
         $this->magic_align      = $magic_align;
+        $this->org_id           = $org_id;
 
         $this->max_stamina      = (int)$max_stamina;
         $this->max_energy       = (int)$max_energy;
@@ -86,6 +89,135 @@ class Profile
 
         $this->cnt_wins         = (int)$cnt_wins;
         $this->cnt_lose         = (int)$cnt_lose;
+    }
+
+
+    /**
+     * @return int
+     */
+    public function getPersonId()
+    {
+        return $this->person_id;
+    }
+
+    /**
+     * @return String
+     */
+    public function getNick()
+    {
+        return $this->nick;
+    }
+
+    /**
+     * @return int
+     */
+    public function getMagicLevel()
+    {
+        return $this->magic_level;
+    }
+
+    /**
+     * @return MagicAlign
+     */
+    public function getMagicAlign()
+    {
+        return $this->magic_align;
+    }
+
+    /**
+     * @return MagicAlign
+     */
+    public function getOrgId()
+    {
+        return $this->org_id;
+    }
+
+    /**
+     * @return int
+     */
+    public function getMaxStamina()
+    {
+        return $this->max_stamina;
+    }
+
+    /**
+     * @return int
+     */
+    public function getMaxEnergy()
+    {
+        return $this->max_energy;
+    }
+
+    /**
+     * @return ClassType
+     */
+    public function getClassTypeId()
+    {
+        return $this->class_type_id;
+    }
+
+    /**
+     * @return Sex
+     */
+    public function getSex()
+    {
+        return $this->sex;
+    }
+
+    /**
+     * @return Tendency
+     */
+    public function getTendency()
+    {
+        return $this->tendency;
+    }
+
+    /**
+     * @return int
+     */
+    public function getRegDate()
+    {
+        return $this->reg_date;
+    }
+
+    /**
+     * @return int
+     */
+    public function getInitDate()
+    {
+        return $this->init_date;
+    }
+
+    /**
+     * @return int
+     */
+    public function getLastLogin()
+    {
+        return $this->last_login;
+    }
+
+    /**
+     * @return int
+     */
+    public function getOnlineTime()
+    {
+        return $this->online_time;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCntWins()
+    {
+        return $this->cnt_wins;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCntLose()
+    {
+        return $this->cnt_lose;
     }
 
     public static function load($person_ids)
@@ -119,41 +251,41 @@ class Profile
 
                 $person_id = (string)$row['person_id'];
 
-                $magic_align = MagicAlign::get((string)$row['magic_align']);
-                if (empty($magic_align)) {
-                    throw new InvalidArgumentException("Incorrect magic_align for profileID: {{$person_id}}, 
-                                                        value: " . (string)$row['magic_align']);
+
+                $fields = [];
+
+                $enumFields = [
+                    'magic_align'   => MagicAlign::class,
+                    'class_type_id' => ClassType::class,
+                    'tendency'      => Tendency::class,
+                    'sex'           => Sex::class,
+                ];
+
+                foreach ($enumFields as $field => $fieldClass)
+                {
+                    try {
+                        $item = (string)$row[$field];
+                        $item = strtolower($item);
+                        $fields[$field] = new $fieldClass($item);
+                    } catch (UnexpectedValueException $ex) {
+                        throw new UnexpectedValueException("Incorrect {{$field}} for profileID: {{$person_id}}, 
+                                                        value: " . (string)$row[$field]);
+                    }
                 }
 
-                $class_type_id = ClassType::get((string)$row['class_type_id']);
-                if (empty($class_type_id)) {
-                    throw new InvalidArgumentException("Incorrect magic_align for profileID: {{$person_id}}, 
-                                                        value: " . (string)$row['class_type_id']);
-                }
 
-                $tendency = Tendency::get((string)$row['tendency']);
-                if (is_null($tendency)) {
-                    throw new InvalidArgumentException("Incorrect tendency for profileID: {{$person_id}}, 
-                                                        value: " . (string)$row['tendency']);
-                }                
-                
-                $sex = Sex::get((string)$row['sex']);
-                if (is_null($sex)) {
-                    throw new InvalidArgumentException("Incorrect sex for profileID: {{$person_id}}, 
-                                                        value: " . (string)$row['sex']);
-                }
 
                 $result[] = new Profile(
                     $person_id,
                     (string)$row['nick'],
                     (string)$row['magic_level'],
-                    $magic_align,
+                    $fields['magic_align'],
                     (string)$row['org_id'],
                     (string)$row['max_stamina'],
                     (string)$row['max_energy'],
-                    $class_type_id,
-                    $sex,
-                    $tendency,
+                    $fields['class_type_id'],
+                    $fields['sex'],
+                    $fields['tendency'],
                     (string)$row['reg_date'],
                     (string)$row['init_date'],
                     (string)$row['last_login'],

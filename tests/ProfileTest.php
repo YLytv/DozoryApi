@@ -32,7 +32,6 @@ class ProfileTest extends PHPUnit_Framework_TestCase
 
     }
 
-
     public function testLoad()
     {
         $items = [248, 249, 252];

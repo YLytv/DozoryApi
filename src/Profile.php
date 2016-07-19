@@ -50,7 +50,7 @@ class Profile
      * @param Integer $cnt_wins
      * @param Integer $cnt_lose
      */
-    public function __construct(
+    private function __construct(
                     $person_id,
                     $nick,
                     $magic_level,

@@ -1,7 +1,7 @@
 {
     "name": "ylytv/dozoryapi",
     "description": "Facade for Dozory.Ru API",
-    "keywords": ["dozory.ru", "api"],
+    "keywords": ["dozory", "dozory.ru", "api"],
     "type": "library",
     "license": "MIT",
     "authors" : [
